@@ -271,7 +271,25 @@ onMounted(() => {
 
 - `openModal(name: string, data?: Record<string, any>) => void`: Opens the modal with the specified name and passes data. When passing data, it completely overwrites the existing data. Data is optional, but if provided, it must be an object. If not provided, the modal data will be the initial data.
 - `closeModal(name: string) => void`: Closes the modal with the specified name.
-- `patchModal(name: string, data: Record<string, any>) => void`: Updates the data of the specified modal. It's not an overwrite but rather an update in a way similar to `Object.assign`. It's recommended to perform patchModal after openModal.
+
+- `patchModal(name: string, data: Record<string, any> | (data) => Record<string, any>) => void`:  
+  - Updates the data of the specified modal. 
+  - It's not an overwrite but rather an update in a way similar to `Object.assign`. 
+  - It's recommended to perform patchModal after openModal.
+  - From `0.3.0`, data can be a update function, it receive a current modal data, and it return value will be merged to modal data.
+
+```ts
+// From 0.3.0
+// patch modal by function data
+patchModal("UserModal" ,(currentData) => {
+  return currentData.userId === 123 ? { 
+    order: [
+      ...currentData.order,
+      newOrder
+    ]
+  } : {}
+})
+```
 
 #### `<ModalContext>`
 `<ModalContext>` is the component version of `useModalContext`, and it is a renderless component. These three functions can also be obtained in the `scoped slot` of the `<ModalContext>` component.
@@ -280,6 +298,27 @@ onMounted(() => {
 <ModalContext v-slot="{ openModal, closeModal, patchModal}">
   <!--your content ....-->
 </ModalContext>
+```
+
+You can use `ref` to access it methods from `setup`.
+
+```vue
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const ModalContextRef = ref()
+onMounted(() => {
+  if (ModalContextRef.value){
+    ModalContextRef.value.openModal('UserModal', { userId: 3310 })
+    // or closeModal, patchModal ....
+  }
+})
+</script>
+<template>
+  <ModalContext v-slot="{ openModal, closeModal, patchModal}" ref="ModalContextRef">
+    <!--your content ....-->
+  </ModalContext>
+</template>
 ```
 
 ### `useModalProvider` and `<ModalProvider>`

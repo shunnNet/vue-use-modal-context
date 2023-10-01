@@ -13,6 +13,7 @@
   - [tutorial - global context](#tutorial---global-context)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
+      - [`<ModalContext>`](#modalcontext)
     - [`useModalProvider` and `<ModalProvider>`](#usemodalprovider-and-modalprovider)
     - [`useGlobalModalContext`, `useGlobalModal`](#useglobalmodalcontext-useglobalmodal)
     - [Types](#types)
@@ -265,14 +266,55 @@ onMounted(() => {
 
 - `openModal(name: string, data?: Record<string, any>) => void`: 開啟指定 name 的 modal，並傳遞 data。傳遞 data 時會完全覆寫現有的 data。data 不是必傳的，有傳遞的話必須是個 Object，如果沒有傳，則 modal data 會是 initData。
 - `closeModal(name: string) => void`: 關閉指定 name 的 modal。
-- `patchModal(name: string, data: Record<string, any>) => void`: 更新指定 modal 的 data。不是 overwrite，而是會以類似 `Object.assign` 的方式更新。建議 `openModal` 之後才做 `patchModal`。
 
+- `patchModal(name: string, data: Record<string, any> | (data) => Record<string, any>) => void`:
+  -  更新指定 modal 的 data。
+  -  不是 overwrite，而是會以類似 `Object.assign` 的方式更新。
+  -  建議 `openModal` 之後才做 `patchModal`。
+  -  從 `0.3.0` 版開始， data 可以是 update function。這個函式會接收現在的 modalData，並且會將回傳的物件合併到 modalData 上
+
+```ts
+// From 0.3.0
+// patch modal by function data
+patchModal("UserModal" ,(currentData) => {
+  return currentData.userId === 123 ? { 
+    order: [
+      ...currentData.order,
+      newOrder
+    ]
+  } : {}
+})
+```
+
+
+#### `<ModalContext>`
 `<ModalContext>`是 `useModalContext` 的元件版本，是個 renderless component。這三個函式也可以在 `<ModalContext>` 元件的 scoped slot 中取得。
 
 ```html
 <ModalContext v-slot="{ openModal, closeModal, patchModal}">
   <!--your content ....-->
 </ModalContext>
+```
+
+你也可以透過 `ref` 在 setup 中存取 `ModalContext` 的方法。
+
+```vue
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const ModalContextRef = ref()
+onMounted(() => {
+  if (ModalContextRef.value){
+    ModalContextRef.value.openModal('UserModal', { userId: 3310 })
+    // or closeModal, patchModal ....
+  }
+})
+</script>
+<template>
+  <ModalContext v-slot="{ openModal, closeModal, patchModal}" ref="ModalContextRef">
+    <!--your content ....-->
+  </ModalContext>
+</template>
 ```
 
 ### `useModalProvider` and `<ModalProvider>`
