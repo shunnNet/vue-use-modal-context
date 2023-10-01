@@ -1,42 +1,42 @@
 import { inject, provide, reactive } from 'vue'
+import type { ModalMap, RegistModal, UnregisterModal, OpenModal, CloseModal, PatchModal } from './types'
 
-export type Modal = {
-  show: boolean
-  data: any
-  initValue: any
-  close: () => void
-  open: (data: any) => void
-  patch: (data: any) => void
-}
-export type RegistModal = (name: string, initValue?: any) => void
-export type UnregisterModal = (name: string) => void
-export type ModalData = Record<string, any>
-export type ModalMap = Record<string, Modal>
-export type OpenModal = (name: string, data?: ModalData) => void
-export type PatchModal = (name: string, patchData: ModalData) => void
-export type CloseModal = (name: string) => void
+import { ContextName } from './constant'
+import { watch } from 'vue'
 
 const _useModalContext = () => {
   const modalMap: ModalMap = reactive({})
-  const registerModal: RegistModal = (name, initValue) => {
+  const registerModal: RegistModal = (name, initValue, resetAfterClose = false) => {
     modalMap[name] = {
       show: false,
       data: initValue || {},
       initValue: initValue || {},
       open: (data) => openModal(name, data),
-      close: () => closeModal(name),
-      patch: (data: ModalData) => patchModal(name, data),
+      close: () => closeModal(name, resetAfterClose),
+      patch: (data) => patchModal(name, data),
+      unwatch: () => {},
     }
+
+    modalMap[name].unwatch = watch(
+      () => modalMap[name].show,
+      (_, oldVal) => {
+        if (oldVal === true && resetAfterClose) {
+          modalMap[name].data = modalMap[name].initValue
+        }
+      }
+    )
   }
   const unregisterModal: UnregisterModal = (name) => {
     checkModalExistedOrThrow(name)
-    const modal = modalMap[name]
-    modal.close()
+    modalMap[name].close()
+    delete modalMap[name]
   }
-  const openModal: OpenModal = (name, data = {}) => {
+  const openModal: OpenModal = (name, data) => {
     checkModalExistedOrThrow(name)
     modalMap[name].show = true
-    modalMap[name].data = data
+    if (data) {
+      modalMap[name].data = data
+    }
   }
 
   const closeModal: CloseModal = (name) => {
@@ -72,9 +72,9 @@ const _useModalContext = () => {
 export const useModalContext = () => {
   const { modalMap, openModal, closeModal, patchModal, registerModal, unregisterModal } = _useModalContext()
 
-  provide('modalMap', modalMap)
-  provide('registerModal', registerModal)
-  provide('unregisterModal', unregisterModal)
+  provide(ContextName.ModalMap, modalMap)
+  provide(ContextName.RegisterModal, registerModal)
+  provide(ContextName.UnregisterModal, unregisterModal)
 
   return {
     openModal,
@@ -88,16 +88,16 @@ export const useModalContext = () => {
 export const useGlobalModalContext = () => {
   const { modalMap, openModal, closeModal, patchModal, registerModal, unregisterModal } = _useModalContext()
 
-  if (inject('globalModalMap', null)) {
-    throw new Error('GlobalModalContext can only be used once.')
+  if (inject(ContextName.GlobalModalMap, null)) {
+    throw new Error('GlobalModalContext can not under the other GlobalModalContext.')
   }
 
-  provide('globalModalMap', modalMap)
-  provide('openGlobalModal', openModal)
-  provide('closeGlobalModal', closeModal)
-  provide('patchGlobalModal', patchModal)
-  provide('registerGlobalModal', registerModal)
-  provide('unregisterGlobalModal', unregisterModal)
+  provide(ContextName.GlobalModalMap, modalMap)
+  provide(ContextName.OpenGlobalModal, openModal)
+  provide(ContextName.CloseGlobalModal, closeModal)
+  provide(ContextName.PatchGlobalModal, patchModal)
+  provide(ContextName.RegisterGlobalModal, registerModal)
+  provide(ContextName.UnregisterGlobalModal, unregisterModal)
 
   return {
     openGlobalModal: openModal,

@@ -1,10 +1,5 @@
 import { useModalProvider } from './useModalProvider'
 import { defineComponent } from 'vue'
-import type { Modal } from './useModalContext'
-
-export type ModalProviderSlotPropsDefault = {
-  modal: Modal
-}
 
 export default defineComponent({
   props: {
@@ -20,9 +15,13 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    resetAfterClose: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, { slots }) {
-    const { modal } = useModalProvider(props.name, props.global, props.initData)
+    const { modal } = useModalProvider(props.name, props.initData, props.resetAfterClose, props.global)
 
     const closeAnd = (fn: () => any) => {
       modal.close()

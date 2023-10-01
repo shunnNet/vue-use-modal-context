@@ -30,7 +30,10 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.vue",
+  ],
+  "exclude": [
+    "experimental/**/*.ts"
   ],
   "references": [
     {

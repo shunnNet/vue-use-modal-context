@@ -1,5 +1,27 @@
-import type { VNode, Slot, Component, ShallowRef } from 'vue'
+export type Modal = {
+  show: boolean
+  data: any
+  initValue: any
+  close: () => void
+  open: (data?: any) => void
+  patch: (data: ModalData) => void
+  unwatch: () => void
+}
+export type RegistModal = (name: string, initValue: Record<string, any>, resetAfterClose?: boolean) => void
+export type UnregisterModal = (name: string) => void
+export type ModalData = Record<string, any>
+export type ModalMap = Record<string, Modal>
+export type OpenModal = (name: string, data?: ModalData) => void
+export type PatchModal = (name: string, patchData: ModalData) => void
+export type CloseModal = (name: string, resetAfterClose?: boolean) => void
 
-export type AccepterMap = Record<string, AccepterSlots>
-export type AccepterSlotContent = Slot | Component | VNode[] | VNode
-export type AccepterSlots = Record<string, ShallowRef<AccepterSlotContent>>
+export type ModalProviderSlot = {
+  modal: Modal
+  closeAnd: (fn: () => any) => void
+}
+
+export type ModalContextSlot = {
+  openModal: OpenModal
+  closeModal: CloseModal
+  patchModal: PatchModal
+}

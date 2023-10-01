@@ -1,13 +1,11 @@
 # vue-use-modal-context
-[繁體中文](./README.zh-tw.md)
+這是一個讓使用 modal 更簡便的工具。使用 [Vue 3 `provide` / `inject`](https://vuejs.org/guide/components/provide-inject.html)。請先了解後再使用。
 
-This is a tool that makes using modals more convenient by using [Vue 3 `provide` / `inject`](https://vuejs.org/guide/components/provide-inject.html). Please familiarize yourself with it before use.
+提供開關 modal 以及傳遞資料更簡單的寫法，我想應該可以減輕一些設定 modal 時的工作。
 
-It provides a simpler way to toggle modals and pass data. It should reduce some of the work when configuring modals.
+支援 Vue 3+。
 
-Supports Vue 3+.
-
-Excludes the modal itself. If you're choosing a modal package, you might consider [vue-final-modal](https://github.com/vue-final/vue-final-modal)。
+不包含 modal 本身。如果你在挑選 modal 的套件，你可以考慮 [vue-final-modal](https://github.com/vue-final/vue-final-modal)。
 
 - [vue-use-modal-context](#vue-use-modal-context)
   - [Install](#install)
@@ -15,14 +13,11 @@ Excludes the modal itself. If you're choosing a modal package, you might conside
   - [tutorial - global context](#tutorial---global-context)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
-      - [`<ModalContext>`](#modalcontext)
     - [`useModalProvider` and `<ModalProvider>`](#usemodalprovider-and-modalprovider)
-    - [`useModalProvider`](#usemodalprovider)
     - [`useGlobalModalContext`, `useGlobalModal`](#useglobalmodalcontext-useglobalmodal)
     - [Types](#types)
       - [Global components type](#global-components-type)
       - [slot type](#slot-type)
-
 
 
 ## Install
@@ -30,7 +25,7 @@ Excludes the modal itself. If you're choosing a modal package, you might conside
 npm install vue-use-modal-context
 ```
 
-You can globally register the component  `<ModalContext>`, `<ModalProvider>` using a plugin.
+你可以使用 plugin 全域註冊元件 `<ModalContext>`, `<ModalProvider>`
 
 ```ts
 import { ModalContextPlugin } from "vue-use-modal-context"
@@ -42,19 +37,18 @@ app.use(ModalContextPlugin)
 app.mount('#app')
 ```
 
-Alternatively, you can also import it directly.
+或是直接引入也可以。
 
 ```ts
 import { ModalContext, ModalProvider } from "vue-use-modal-context"
 ```
 
-[setup global component type](#global-components-type)
+[設定 global component type](#global-components-type)
 
 ## Tutorial 
-First, let's take a look at a typical example of using a modal.
+首先看一下一個普通的使用 modal 的範例。
 
-This is a situation I often encounter: to set up a modal, I need to configure show, `openModal`, `modalData`, and so on. If there are 10 modals, I have to set it up 10 times.
-
+這是我經常遇到的情況：為了設定一個 modal，我需要設定 `show`, `openModal`, `modalData` .....。如果有 10 個 modal，就必須設定 10 次。
 ```vue
 <script setup>
 import { ref } from 'vue'
@@ -84,7 +78,7 @@ const onModalClose = () => {
 </template>
 ```
 
-Now, let's try using the tools provided by `vue-use-modal-context`, namely `useModalContext` and `ModalProvider`, to simplify this example. First, call `useModalContext()`, and you can obtain `openModal`.
+現在試著使用 `vue-use-modal-context` 中提供的工具 `useModalContext` 以及 `ModalProvider` 簡化這個範例。首先呼叫 `useModalContext()`，你可以得到 `openModal`
 
 ```vue
 <!-- Step 1: call useModalContext -->
@@ -101,7 +95,7 @@ const { openModal } = useModalContext()
 
 ```
 
-Next, you need to add `ModalProvider` to register a modal with the `modalContext`. We registered a modal with the name **UserModal**.
+接著你需要加入 `ModalProvider`，將一個 modal 註冊到 `modalContext` 中。我們註冊了一個 modal，名稱是 **UserModal**
 
 ```vue
 <!-- Step 2: use ModalProvider to register modal -->
@@ -119,7 +113,7 @@ const { openModal } = useModalContext()
 </template>
 ```
 
-Next, you can retrieve the modal's state from the `scoped slot` of `ModalProvider`, which includes `show` and `data`. Connect these two pieces of data to the modal and set the initial data to `init-data`.
+接著可以從 ModalProvider 的 scoped slot 中取得 modal 的狀態，有 `show` 以及 `data`，我們將這兩個資料連接到 Modal 上。 並且設定初始的資料 `init-data`
 
 ```vue
 <!-- Step 3: connect ModalProvider to UserModal -->
@@ -137,7 +131,7 @@ const { openModal } = useModalContext()
 </template>
 ```
 
-Finally, just add the button to open the modal and bind it to `openModal`.
+最後只要加上開啟 modal 的 `button`，在上面綁定 `openModal` 即可。
 
 ```vue
 <!-- Step 4: openModal anywhere -->
@@ -156,7 +150,7 @@ const { openModal } = useModalContext()
 </template>
 ```
 
-If you want to add a new modal, you just need to register a new `ModalProvider`.
+如果你想要新增一個 modal，那只要註冊新的 modalProvider 就好。
 
 ```vue
 <!-- Step ex: use more modal -->
@@ -186,7 +180,7 @@ const { openModal } = useModalContext()
 </template>
 ```
 
-`useModalContext` also has a component version. If you prefer using components, you can give it a try as well.
+useModalContext 也有元件的版本，如果你偏好使用元件也可以嘗試看看。
 
 ```vue
 <!-- Step ex: ModalContext component -->
@@ -219,9 +213,9 @@ import { ModalContext, ModalProvider } from "vue-use-modal-context"
 
 
 ## tutorial - global context
-You might need a global modal context that spans across components and contexts. In such cases, you can use `useGlobalModalContext`.
+可能會需要一個可以跨元件，並且跨 context 的 global modal context。這時候你可以使用 `useGlobalModalContext`。
 
-It is recommended to use it in the top-level component (e.g., `App.vue`):
+建議在最上層的元件(e.g: `App.vue`) 中使用他：
 
 ```vue
 <!-- App.vue -->
@@ -237,7 +231,7 @@ useGlobalModalContext()
 </template>
 ```
 
-Then, you can set `<ModalProvider`> anywhere. Remember to set it as `global`.
+然後在你可以在任何一個地方設定 `<ModalProvider>`。記得，將他設定為 `global`。
 
 ```vue
 <!-- Child.vue -->
@@ -248,7 +242,7 @@ Then, you can set `<ModalProvider`> anywhere. Remember to set it as `global`.
 </template>
 ```
 
-The difference is that you need to use `useGlobalModal` to obtain the methods for manipulating the modal.
+不太一樣的是，你需要透過 `useGlobalModal` 取得操作 modal 的方法。
 
 ```vue
 <!-- Child2.vue -->
@@ -267,14 +261,13 @@ onMounted(() => {
 ## documentation
 
 ### `useModalContext` and `<ModalContext>`
-`useModalContext` is a composition function. It uses the `provide`  to pass modal context data to child components. Additionally, it returns three functions:
+`useModalContext` 是個 composition function。會對子元件用 provide 的方式傳遞 modal context 的資料。此外他會回傳 3 個函式。
 
-- `openModal(name: string, data?: Record<string, any>) => void`: Opens the modal with the specified name and passes data. When passing data, it completely overwrites the existing data. Data is optional, but if provided, it must be an object. If not provided, the modal data will be the initial data.
-- `closeModal(name: string) => void`: Closes the modal with the specified name.
-- `patchModal(name: string, data: Record<string, any>) => void`: Updates the data of the specified modal. It's not an overwrite but rather an update in a way similar to `Object.assign`. It's recommended to perform patchModal after openModal.
+- `openModal(name: string, data?: Record<string, any>) => void`: 開啟指定 name 的 modal，並傳遞 data。傳遞 data 時會完全覆寫現有的 data。data 不是必傳的，有傳遞的話必須是個 Object，如果沒有傳，則 modal data 會是 initData。
+- `closeModal(name: string) => void`: 關閉指定 name 的 modal。
+- `patchModal(name: string, data: Record<string, any>) => void`: 更新指定 modal 的 data。不是 overwrite，而是會以類似 `Object.assign` 的方式更新。建議 `openModal` 之後才做 `patchModal`。
 
-#### `<ModalContext>`
-`<ModalContext>` is the component version of `useModalContext`, and it is a renderless component. These three functions can also be obtained in the `scoped slot` of the `<ModalContext>` component.
+`<ModalContext>`是 `useModalContext` 的元件版本，是個 renderless component。這三個函式也可以在 `<ModalContext>` 元件的 scoped slot 中取得。
 
 ```html
 <ModalContext v-slot="{ openModal, closeModal, patchModal}">
@@ -283,26 +276,24 @@ onMounted(() => {
 ```
 
 ### `useModalProvider` and `<ModalProvider>`
-`<ModalProvider>` is the component version of `useModalProvider` and is a renderless component. It registers the modal within its own `ModalContext`.
+`<ModalProvider>` 是 `useModalProvider` 的元件版本，是個 renderless component。他會在自己所在 ModalContext 中註冊 modal。
 
-It must be placed inside the `ModalContext`. In other words, its parent component or a higher-level component must have either `useModalContext` or `<ModalContext>`.
+他必須被放在 ModalContext 之中，換句話說，他的父元件或是更上層的元件必須要有 `useModalContext` 或是 `ModalContext`。
 
-`<ModalProvider>` provides the following parameters:
+`<ModalProvider>` 提供一些參數：
+- `name`: 必要參數。設定 modal 的名稱。這會對應 openModal 的第一參數。
+- `init-data`: 非必要參數。會決定 `modal.data` 的初始狀態。如果沒有傳，則預設 `{}`。
+- `global`: `boolean`。是否屬於 globalModalContext ，default是false。（見 globalModalContext）
+- `reset-after-close`: `boolean。是否在` close 之後 reset data 回 init-data。預設是 `false`。
 
-- `name`: Required. Sets the name of the modal, corresponding to the first argument of openModal.
-- `init-data`: Optional. Determines the initial state of `modal.data`. If not provided, it defaults to `{}`.
-- `global`: `boolean`. Specifies whether it belongs to the globalModalContext. The default is `false` (see [globalModalContext](#useglobalmodalcontext-useglobalmodal)).
-`reset-after-close`: `boolean`. Determines whether to reset data back to `init-data` after closing. The default is `false`.
+`<ModalProvider>` 提供的 `scoped slot`：
+- `modal`: 有 modal 的狀態跟一些函式可以用。 是一個 **reactive 物件**，所以**不要對這個物件做解構賦值**。
+  - `modal.show`: `boolean`， modal 是開 or 關。
+  - `modal.data`: 預設是 `{}`，如果有傳 `init-data` 的話，則預設是 `init-data`。當呼叫 `openModal` 時，如果 `openModal` 有傳遞 data，則 `modal.data` 會變成該 data。呼叫 `patchModal` 時也可以修改 `modal.data`。
 
-`<ModalProvider>` provides the following `scoped slot`:
+- `closeAnd(fn: () => any)`: 關閉 modal ，並執行 fn。如果需要設定 event handler 時，這可以幫得上忙。
 
-- `modal`: Contains the state of the modal and some functions. It is a `reactive` object, so **do not destructure this object**.
-
-  - `modal.show`: boolean, indicating whether the modal is open or closed.
-  - `modal.data`: Defaults to `{}`, and if `init-data` is provided, it defaults to `init-data`. When calling `openModal`, if data is passed, `modal.data` becomes that data. You can also modify `modal.data` when calling `patchModal`.
-  - `closeAnd(fn: () => any)`: Closes the modal and executes `fn`. Useful when setting event handlers.
-
-Here's an example of using `closeAnd`:
+以下使用 closeAnd 的一個時機：
 
 ```html
 <ModalProvider v-slot="{ modal, closeAnd }" name="UserEditModal" :init-data="{ userId: 0 }">
@@ -312,37 +303,39 @@ Here's an example of using `closeAnd`:
 </ModalProvider>
 ```
 
-### `useModalProvider`
-`useModalProvider` is a composition function。`<ModalProvder>` use `useModalProvider` internally.
+`useModalProvider` 是個 composition function。`<ModalProvder>` 內部就是使用 `useModalProvider`。
 
-params:`(name: string, initData: Record<string, any> = {}, resetAfterClose: boolean = false, global: boolean = false)`
+參數：`(name: string, initData: Record<string, any> = {}, resetAfterClose: boolean = false, global: boolean = false)`
 
-- `name`: Required. Sets the name of the modal, corresponding to the first argument of `openModal`.
-- `initData`: Optional. Determines the initial state of `modal.data`. If not provided, it defaults to `{}`.
-- `resetAfterClose`: `Optional`. Specifies whether to reset data back to `initData` after closing. The default is `false`.
-- `global`: `boolean`. Specifies whether it belongs to the globalModalContext. The default is false (see [globalModalContext](#useglobalmodalcontext-useglobalmodal)).
+- `name`: 必要參數。設定 modal 的名稱。這會對應 `openModal` 的第一參數。
+- `init-data`: 非必要參數。會決定 `modal.data` 的初始狀態。如果沒有傳，則預設 `{}`。
+- `resetAfterClose`: 非必要參數。是否在 close 後重設 data 回 initData。預設是 false。
+- `global`: boolean。是否屬於 globalModalContext ，default 是 `false`。（見 globalModalContext）
 
-Returns:
-`modal`: Same as the modal in the <ModalProvider> scoped slot.
+
+回傳：
+- `modal`: 與 `<ModalProvider>` scoped slot 中的 `modal`。
 
 
 ### `useGlobalModalContext`, `useGlobalModal`
 
-`useGlobalModalContext` is similar to `useModalContext` but can register a global context. Note that components using `globalModalContext` cannot under the another `globalModalContext`. The globalModalContext won't be overridden by a regular ModalContext.
+`useGlobalModalContext` 與 `useModalContext` 類似，可以註冊一個全域的 context。注意，使用 globalModalContext 的子元件不能再有 globalModalContext。globalModalContext 不會被一般的 ModalContext 覆蓋。
 
-`useGlobalModal` provides the following functions to manipulate the global modal context:
 
-`useGlobalModal` returns:
+`useGlobalModal` 則可以取得 global modal context 的操作函式：
 
-`openGlobalModal`: Similar to openModal, but can only open global modals.
-`closeGlobalModal`: Similar to closeModal, but can only close global modals.
-`patchGlobalModal`: Similar to patchModal, but can only patch global modals.
+`useGlobalModal` 將會回傳：
+
+- `openGlobalModal`: 與 `openModal` 相同，但只能開啟 global modal。
+- `closeGlobalModal`: 與 `closeModal` 相同，但只能關閉 global modal。
+- `patchGlobalModal`: 與 `patchModal` 相同，但只能 patch global modal。
+
 
 ### Types
-Most types in this package are exposed. The following explains the most commonly used type settings.
+內部的 type 基本上都有曝露出來。以下說明比較常用的 type 設置
 
 #### Global components type
-When you are using globally registered components, if you are using `vscode + volar`, you can set the global components type through the following way:
+當你是使用全域註冊元件時，如果你是使用 `vscode` + `volar`，你可以透過以下方式設置 global components type
 
 ```ts
 // src/components.d.ts
@@ -357,7 +350,7 @@ declare module 'vue' {
 ```
 
 #### slot type
-Two types that might be more commonly used are `ModalProviderSlot` and `ModalContextSlot`
+其中有兩個比較有可能會用的是 `ModalProviderSlot`, `ModalContextSlot`
 ```vue
 <script setup lang="ts">
 import type { ModalContextSlot, ModalProviderSlot } from "vue-use-modal-context"

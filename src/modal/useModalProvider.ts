@@ -1,18 +1,30 @@
-import { inject, onBeforeUnmount, provide } from 'vue'
-import type { ModalMap, RegistModal, UnregisterModal } from './useModalContext'
+import { inject, onBeforeUnmount } from 'vue'
+import type { ModalMap, RegistModal, UnregisterModal } from './types'
+import { ContextName } from './constant'
 
-export const useModalProvider = (name: string, global: boolean, initData?: any) => {
-  const modalMap = inject<ModalMap>(global ? 'globalModalMap' : 'modalMap')
-  const registerModal = inject<RegistModal>(global ? 'registerGlobalModal' : 'registerModal')
-  const unregisterModal = inject<UnregisterModal>(global ? 'unregisterGlobalModal' : 'unregisterModal')
+export const useModalProvider = (
+  name: string,
+  initData: Record<string, any> = {},
+  resetAfterClose: boolean = false,
+  global: boolean = false
+) => {
+  const modalMap = inject(global ? ContextName.GlobalModalMap : ContextName.ModalMap, null) as ModalMap | null
+
+  const registerModal = inject(
+    global ? ContextName.RegisterGlobalModal : ContextName.RegisterModal,
+    null
+  ) as RegistModal | null
+
+  const unregisterModal = inject(
+    global ? ContextName.UnregisterGlobalModal : ContextName.UnregisterModal,
+    null
+  ) as UnregisterModal | null
 
   if (!modalMap || !registerModal || !unregisterModal) {
     throw new Error(`ModalProvider "${name}" need be in ModalContext.`)
   }
 
-  registerModal(name, initData)
-
-  provide('modal', modalMap[name])
+  registerModal(name, initData, resetAfterClose)
 
   onBeforeUnmount(() => {
     unregisterModal(name)

@@ -19,11 +19,13 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "@vue/test-utils": "^2.4.1",
     "element-plus": "^2.3.14",
     "vue": "^3.3.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
+    "happy-dom": "^12.2.1",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.6.0",

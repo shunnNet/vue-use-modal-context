@@ -1,50 +1,36 @@
 <script setup lang="ts">
-import { useModalContext, useModalAccepterContext, useGlobalModalContext } from './modal'
-import type { ModalProviderSlotPropsDefault } from './modal/ModalProvider'
+import { useGlobalModalContext } from './modal'
+import type { ModalProviderSlot, ModalContextSlot } from './modal'
+
 import Child from './child.vue'
 
-const { openModal, closeModal, patchModal } = useModalContext()
 useGlobalModalContext()
 
-useModalAccepterContext()
+// const doSomething = () => {
+//   console.log(123)
+// }
 </script>
 
 <template>
   <div>
-    <ElButton type="primary" @click="openModal('Good Modal', { name: 'Good' })"> Open Good Modal </ElButton>
-    <ElButton type="warning" @click="patchModal('Good Modal', { id: 123 })"> Patch Good Modal </ElButton>
-  </div>
-  <div>
-    <Child />
-    <ModalProvider v-slot="{ modal }: ModalProviderSlotPropsDefault" name="Good Modal" :init-data="{}">
-      {{ modal.data }}
-      <ElButton @click="closeModal('Good Modal')">Close</ElButton>
-      <ElDialog v-model="modal.show">
-        <div>I am Good Modal</div>
-        <div>
-          <ElButton @click="() => modal.close()">Close</ElButton>
-        </div>
-      </ElDialog>
+    <ModalProvider v-slot="{ modal, closeAnd }: ModalProviderSlot" name="TestModal" :init-data="{ value: 123 }" global>
+      {{ modal }}
+      <div>
+        <ElButton @click="closeAnd(() => modal.patch({ name: 'net' }))"> Close TestModal </ElButton>
+        <ElButton @click="modal.show = false"> Close TestModal2 </ElButton>
+      </div>
     </ModalProvider>
+    <Child />
 
-    <div class="test">
-      <ModalAccepter name="custom">
-        <ModalProvider
-          v-slot="{ modal }: ModalProviderSlotPropsDefault"
-          name="TestGlobalModal"
-          global
-          :init-data="{ msg: '' }"
-        >
-          <ElDialog v-model="modal.show">
-            <template #default>
-              <ModalAccepterSlot name="default" :slot-props="{ name: 'accepter', data: modal.data }" />
-            </template>
-            <template #footer>
-              <ModalAccepterSlot name="footer" :slot-props="{ modal }" />
-            </template>
-          </ElDialog>
+    <div>
+      <div>Local Modal</div>
+      <ModalContext v-slot="{ openModal, closeModal }: ModalContextSlot">
+        <ElButton @click="openModal('TestModal', { data: 123 })"> open local</ElButton>
+        <ElButton @click="closeModal('TestModal')"> close local</ElButton>
+        <ModalProvider v-slot="{ modal }" name="TestModal" reset-after-close>
+          {{ modal }}
         </ModalProvider>
-      </ModalAccepter>
+      </ModalContext>
     </div>
   </div>
 </template>
