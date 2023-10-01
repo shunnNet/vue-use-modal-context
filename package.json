@@ -11,6 +11,19 @@
       "require": "./dist/index.umd.cjs"
     }
   },
+  "repository": "https://github.com/shunnNet/vue-use-modal-context",
+  "bugs": {
+    "url": "https://github.com/shunnNet/vue-use-modal-context/issues"
+  },
+  "keywords": [
+    "vue",
+    "modal"
+  ],
+  "author": "shunnNet",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
