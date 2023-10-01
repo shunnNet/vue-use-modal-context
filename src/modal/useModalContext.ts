@@ -47,9 +47,16 @@ const _useModalContext = () => {
   }
   const patchModal: PatchModal = (name, patchData = {}) => {
     checkModalExistedOrThrow(name)
-    modalMap[name].data = {
-      ...modalMap[name].data,
-      ...patchData,
+    if (typeof patchData === 'function') {
+      modalMap[name].data = {
+        ...modalMap[name].data,
+        ...patchData(modalMap[name].data),
+      }
+    } else {
+      modalMap[name].data = {
+        ...modalMap[name].data,
+        ...patchData,
+      }
     }
   }
 
