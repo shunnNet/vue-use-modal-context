@@ -11,6 +11,7 @@
   - [Install](#install)
   - [Tutorial](#tutorial)
   - [tutorial - global context](#tutorial---global-context)
+  - [Tutorial - Divide context and provide](#tutorial---divide-context-and-provide)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
       - [`<ModalContext>`](#modalcontext)
@@ -257,6 +258,49 @@ onMounted(() => {
   openGlobalModal("LoginModal")
 })
 </script>
+```
+
+## Tutorial - Divide context and provide
+> `v0.4.0+` support
+由於 `provide` / `inject` 的限制， `ModalContext` 只能在 Vue 元件之中使用。
+
+你可以透過分開 context 跟 provide，讓 `ModalContext` 得到更大的自由度。
+
+以下是通常 provide `globalModalContext` 的方式
+
+```ts
+// App.vue
+import { useGlobalModalContext } from "vue-use-modal-context"
+useGlobalModalContext()
+```
+
+現在這個動作可以相等於：
+
+```ts
+// App.vue
+import { createModalContext, provideModalContextGlobal } from "vue-use-modal-context"
+
+const globalModalContext = createModalContext()
+provideModalContextGlobal(globalModalContext)
+```
+
+在 globalModalContext 中你可以使用包括 `openModal` 在內所有 ModalContext 的功能。
+
+這個功能可以讓在其他非 Vue 元件內操作 modal 變得比較方便，你可以將 global modal 做成像是下面這樣：
+
+```ts
+// src/global-modal.ts
+import { createModalContext } from './modal'
+
+export const globalModal = createModalContext()
+```
+
+```ts
+// src/App.vue
+import { provideModalContextGlobal } from './modal'
+import { globalModal } from './global-modal'
+
+provideModalContextGlobal(globalModal)
 ```
 
 ## documentation

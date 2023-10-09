@@ -13,6 +13,7 @@ Excludes the modal itself. If you're choosing a modal package, you might conside
   - [Install](#install)
   - [Tutorial](#tutorial)
   - [tutorial - global context](#tutorial---global-context)
+  - [Tutorial - Divide context and provide](#tutorial---divide-context-and-provide)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
       - [`<ModalContext>`](#modalcontext)
@@ -264,6 +265,51 @@ onMounted(() => {
 </script>
 ```
 
+## Tutorial - Divide context and provide
+> `v0.4.0+` support
+Due to the limitations of `provide` / `inject`, `ModalContext` can only be used within Vue components.
+
+You can enhance the flexibility of `ModalContext` by separating `context` and `provide`.
+
+Below is the typical way to provide globalModalContext:
+
+```ts
+// App.vue
+import { useGlobalModalContext } from "vue-use-modal-context"
+useGlobalModalContext()
+```
+
+Now, this can be equal to:
+
+```ts
+// App.vue
+import { createModalContext, provideModalContextGlobal } from "vue-use-modal-context"
+
+const globalModalContext = createModalContext()
+provideModalContextGlobal(globalModalContext)
+```
+
+With the `globalModalContext`, you can utilize all functionalities of `ModalContext`, including `openModal`.
+
+This feature makes it more convenient to manipulate modals in non-Vue file. You can structure the global modal to be something like the following:
+
+```ts
+// src/global-modal.ts
+import { createModalContext } from './modal'
+
+export const globalModal = createModalContext()
+```
+
+```ts
+// src/App.vue
+import { provideModalContextGlobal } from './modal'
+import { globalModal } from './global-modal'
+
+provideModalContextGlobal(globalModal)
+```
+
+
+
 ## documentation
 
 ### `useModalContext` and `<ModalContext>`
@@ -376,6 +422,8 @@ Returns:
 `openGlobalModal`: Similar to openModal, but can only open global modals.
 `closeGlobalModal`: Similar to closeModal, but can only close global modals.
 `patchGlobalModal`: Similar to patchModal, but can only patch global modals.
+
+
 
 ### Types
 Most types in this package are exposed. The following explains the most commonly used type settings.
