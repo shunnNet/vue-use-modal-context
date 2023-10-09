@@ -4,7 +4,7 @@ import type { ModalMap, RegistModal, UnregisterModal, OpenModal, CloseModal, Pat
 import { ContextName } from './constant'
 import { watch } from 'vue'
 
-const _useModalContext = () => {
+export const createModalContext = () => {
   const modalMap: ModalMap = reactive({})
   const registerModal: RegistModal = (name, initValue, resetAfterClose = false) => {
     modalMap[name] = {
@@ -76,12 +76,29 @@ const _useModalContext = () => {
   }
 }
 
-export const useModalContext = () => {
-  const { modalMap, openModal, closeModal, patchModal, registerModal, unregisterModal } = _useModalContext()
+export const provideModalContext = (modalContext: ReturnType<typeof createModalContext>) => {
+  provide(ContextName.ModalMap, modalContext.modalMap)
+  provide(ContextName.RegisterModal, modalContext.registerModal)
+  provide(ContextName.UnregisterModal, modalContext.unregisterModal)
+}
+export const provideModalContextGlobal = (modalContext: ReturnType<typeof createModalContext>) => {
+  if (inject(ContextName.GlobalModalMap, null)) {
+    throw new Error('GlobalModalContext can not under the other GlobalModalContext.')
+  }
 
-  provide(ContextName.ModalMap, modalMap)
-  provide(ContextName.RegisterModal, registerModal)
-  provide(ContextName.UnregisterModal, unregisterModal)
+  provide(ContextName.GlobalModalMap, modalContext.modalMap)
+  provide(ContextName.OpenGlobalModal, modalContext.openModal)
+  provide(ContextName.CloseGlobalModal, modalContext.closeModal)
+  provide(ContextName.PatchGlobalModal, modalContext.patchModal)
+  provide(ContextName.RegisterGlobalModal, modalContext.registerModal)
+  provide(ContextName.UnregisterGlobalModal, modalContext.unregisterModal)
+}
+
+export const useModalContext = () => {
+  const modalContext = createModalContext()
+  const { openModal, closeModal, patchModal, registerModal, unregisterModal } = modalContext
+
+  provideModalContext(modalContext)
 
   return {
     openModal,
@@ -93,18 +110,10 @@ export const useModalContext = () => {
 }
 
 export const useGlobalModalContext = () => {
-  const { modalMap, openModal, closeModal, patchModal, registerModal, unregisterModal } = _useModalContext()
+  const modalContext = createModalContext()
+  const { openModal, closeModal, patchModal, registerModal, unregisterModal } = modalContext
 
-  if (inject(ContextName.GlobalModalMap, null)) {
-    throw new Error('GlobalModalContext can not under the other GlobalModalContext.')
-  }
-
-  provide(ContextName.GlobalModalMap, modalMap)
-  provide(ContextName.OpenGlobalModal, openModal)
-  provide(ContextName.CloseGlobalModal, closeModal)
-  provide(ContextName.PatchGlobalModal, patchModal)
-  provide(ContextName.RegisterGlobalModal, registerModal)
-  provide(ContextName.UnregisterGlobalModal, unregisterModal)
+  provideModalContextGlobal(modalContext)
 
   return {
     openGlobalModal: openModal,
