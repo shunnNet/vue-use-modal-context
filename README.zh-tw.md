@@ -10,7 +10,7 @@
 - [vue-use-modal-context](#vue-use-modal-context)
   - [Install](#install)
   - [Tutorial](#tutorial)
-  - [tutorial - global context](#tutorial---global-context)
+  - [Tutorial - global context](#tutorial---global-context)
   - [Tutorial - Divide context and provide](#tutorial---divide-context-and-provide)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
@@ -214,7 +214,7 @@ import { ModalContext, ModalProvider } from "vue-use-modal-context"
 ```
 
 
-## tutorial - global context
+## Tutorial - global context
 可能會需要一個可以跨元件，並且跨 context 的 global modal context。這時候你可以使用 `useGlobalModalContext`。
 
 建議在最上層的元件(e.g: `App.vue`) 中使用他：
@@ -262,9 +262,10 @@ onMounted(() => {
 
 ## Tutorial - Divide context and provide
 > `v0.4.0+` support
-由於 `provide` / `inject` 的限制， `ModalContext` 只能在 Vue 元件之中使用。
 
-你可以透過分開 context 跟 provide，讓 `ModalContext` 得到更大的自由度。
+在 `0.4.0` 之前，由於 `provide` / `inject` 的限制， `ModalContext` 只能在 Vue 元件之中使用。
+
+現在你可以透過分開 context 跟 provide，讓 `ModalContext` 得到更大的自由度。
 
 以下是通常 provide `globalModalContext` 的方式
 

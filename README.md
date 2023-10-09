@@ -12,7 +12,7 @@ Excludes the modal itself. If you're choosing a modal package, you might conside
 - [vue-use-modal-context](#vue-use-modal-context)
   - [Install](#install)
   - [Tutorial](#tutorial)
-  - [tutorial - global context](#tutorial---global-context)
+  - [Tutorial - global context](#tutorial---global-context)
   - [Tutorial - Divide context and provide](#tutorial---divide-context-and-provide)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
@@ -219,7 +219,7 @@ import { ModalContext, ModalProvider } from "vue-use-modal-context"
 ```
 
 
-## tutorial - global context
+## Tutorial - global context
 You might need a global modal context that spans across components and contexts. In such cases, you can use `useGlobalModalContext`.
 
 It is recommended to use it in the top-level component (e.g., `App.vue`):
@@ -267,9 +267,10 @@ onMounted(() => {
 
 ## Tutorial - Divide context and provide
 > `v0.4.0+` support
-Due to the limitations of `provide` / `inject`, `ModalContext` can only be used within Vue components.
 
-You can enhance the flexibility of `ModalContext` by separating `context` and `provide`.
+Due to the limitations of `provide` / `inject`, `ModalContext` can only be used within Vue components before `0.4.0` .
+
+Now you can enhance the flexibility of `ModalContext` by separating `context` and `provide`.
 
 Below is the typical way to provide globalModalContext:
 
