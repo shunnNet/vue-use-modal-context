@@ -1,5 +1,5 @@
-import ModalContext from './ModalContext'
-import ModalProvider from './ModalProvider'
+import ModalContext from './ModalContext.vue'
+import ModalProvider from './ModalProvider.vue'
 import { Plugin } from 'vue'
 
 export default {

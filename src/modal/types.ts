@@ -15,14 +15,3 @@ export type OpenModal = (name: string, data?: ModalData) => void
 export type PatchModalFunctionData = (data: ModalData) => ModalData
 export type PatchModal = (name: string, patchData: ModalData | PatchModalFunctionData) => void
 export type CloseModal = (name: string, resetAfterClose?: boolean) => void
-
-export type ModalProviderSlot = {
-  modal: Modal
-  closeAnd: (fn: () => any) => void
-}
-
-export type ModalContextSlot = {
-  openModal: OpenModal
-  closeModal: CloseModal
-  patchModal: PatchModal
-}
