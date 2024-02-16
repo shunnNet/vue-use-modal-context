@@ -1,7 +1,7 @@
 {
   "name": "vue-use-modal-context",
   "description": "Vue modal helpers for simplify modal usage",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "main": "dist/index.umd.cjs",
   "module": "dist/index.js",
