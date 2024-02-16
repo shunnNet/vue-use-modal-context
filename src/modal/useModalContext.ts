@@ -19,20 +19,32 @@ export const createModalContext = () => {
       data: initValue || {},
       initValue: initValue || {},
       open: (data) => openModal(name, data),
-      close: () => closeModal(name, resetAfterClose),
+      close: (data) => closeModal(name, data),
       patch: (data) => patchModal(name, data),
       unwatch: () => {},
+      wait: Promise.resolve(),
+      _resolve: () => {},
     }
 
     modalMap[name].unwatch = watch(
       () => modalMap[name].show,
       (_, oldVal) => {
-        if (oldVal === true && resetAfterClose) {
-          modalMap[name].data = modalMap[name].initValue
+        if (oldVal === true) {
+          if (resetAfterClose) {
+            modalMap[name].data = modalMap[name].initValue
+          }
+          modalMap[name]._resolve(undefined)
         }
       }
     )
   }
+
+  const checkModalExistedOrThrow = (name: string) => {
+    if (!modalMap[name]) {
+      throw new Error(`Modal ${name} is not registered.`)
+    }
+  }
+
   const unregisterModal: UnregisterModal = (name) => {
     checkModalExistedOrThrow(name)
     modalMap[name].close()
@@ -44,13 +56,20 @@ export const createModalContext = () => {
     if (data) {
       modalMap[name].data = data
     }
+
+    modalMap[name].wait = new Promise((res) => {
+      modalMap[name]._resolve = res
+    })
+
+    return modalMap[name].wait
   }
 
-  const closeModal: CloseModal = (name) => {
+  const closeModal: CloseModal = (name, data?: any) => {
     checkModalExistedOrThrow(name)
     if (modalMap[name].show) {
       modalMap[name].show = false
     }
+    modalMap[name]._resolve(data)
   }
   const patchModal: PatchModal = (name, patchData = {}) => {
     checkModalExistedOrThrow(name)
@@ -64,12 +83,6 @@ export const createModalContext = () => {
         ...modalMap[name].data,
         ...patchData,
       }
-    }
-  }
-
-  const checkModalExistedOrThrow = (name: string) => {
-    if (!modalMap[name]) {
-      throw new Error(`Modal ${name} is not registered.`)
     }
   }
 

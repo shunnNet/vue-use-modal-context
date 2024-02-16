@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { useGlobalModalContext } from './modal'
 import { useModalContext, useGlobalModalContext } from './modal'
-import { onMounted } from 'vue'
+
 import Child from './child.vue'
 
 // const doSomething = () => {
@@ -9,20 +9,16 @@ import Child from './child.vue'
 // }
 const { openModal, closeModal } = useModalContext()
 const { openGlobalModal, closeGlobalModal } = useGlobalModalContext()
-onMounted(() => {
-  // openModal('TestModal', { data: 123 })
-  openGlobalModal('TestModal', { data: 123 })
-})
+
+const handleOpenGlobal = async () => {
+  const result = await openGlobalModal('TestModal', { data: 123 })
+  console.log(result)
+}
 </script>
 
 <template>
   <div>
-    <ElButton @click="openGlobalModal('TestModal')" type="primary"
-      >Open Global Modal</ElButton
-    >
-    <ElButton @click="closeGlobalModal('TestModal')" type="warning"
-      >Close Global Modal</ElButton
-    >
+    <ElButton @click="handleOpenGlobal" type="primary">Open Global Modal</ElButton>
     <hr />
     <ModalProvider
       v-slot="{ modal, closeAnd }"
@@ -30,7 +26,11 @@ onMounted(() => {
       :init-data="{ value: 123 }"
       global
     >
-      <ElDialog v-model="modal.show"></ElDialog>
+      <ElDialog v-model="modal.show">
+        <ElButton @click="closeGlobalModal('TestModal', 'yes')" type="warning"
+          >Close Global Modal</ElButton
+        >
+      </ElDialog>
       {{ modal }}
       <div>
         <ElButton @click="closeAnd(() => modal.patch({ name: 'net' }))">
