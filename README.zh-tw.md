@@ -11,15 +11,14 @@
   - [Install](#install)
   - [Tutorial](#tutorial)
   - [Tutorial - global context](#tutorial---global-context)
-  - [Tutorial - Divide context and provide](#tutorial---divide-context-and-provide)
+    - [setup global modal](#setup-global-modal)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
       - [`<ModalContext>`](#modalcontext)
     - [`useModalProvider` and `<ModalProvider>`](#usemodalprovider-and-modalprovider)
-    - [`useGlobalModalContext`, `useGlobalModal`](#useglobalmodalcontext-useglobalmodal)
+    - [`useGlobalModalContext`](#useglobalmodalcontext)
     - [Types](#types)
       - [Global components type](#global-components-type)
-      - [slot type](#slot-type)
 
 
 ## Install
@@ -27,14 +26,14 @@
 npm install vue-use-modal-context
 ```
 
-你可以使用 plugin 全域註冊元件 `<ModalContext>`, `<ModalProvider>`
-
+你可以使用 plugin 全域註冊元件 `<ModalContext>`, `<ModalProvider>`。
+（請傳入 `component: true` ）
 ```ts
 import { ModalContextPlugin } from "vue-use-modal-context"
 
 const app = createApp(App)
 
-app.use(ModalContextPlugin)
+app.use(ModalContextPlugin, { component: true })
 
 app.mount('#app')
 ```
@@ -215,28 +214,17 @@ import { ModalContext, ModalProvider } from "vue-use-modal-context"
 
 
 ## Tutorial - global context
-可能會需要一個可以跨元件，並且跨 context 的 global modal context。這時候你可以使用 `useGlobalModalContext`。
+可能會需要一個可以跨元件，並且跨 context 的 global modal context。
 
-建議在最上層的元件(e.g: `App.vue`) 中使用他：
+這時候你可以使用 `useGlobalModalContext`。
+
+使用 global modal 需要註冊 plugin，請參考[文件](#install)。
+
+### setup global modal
+你可以在任何一個地方設定 `<ModalProvider>`。記得，將他設定為 `global`。通常會放在 `App.vue` 
 
 ```vue
 <!-- App.vue -->
-<script setup>
-
-import { useGlobalModalContext } from "vue-use-modal-context"
-
-useGlobalModalContext()
-</script>
-<template>
-  <Child />
-  <Child2 />
-</template>
-```
-
-然後在你可以在任何一個地方設定 `<ModalProvider>`。記得，將他設定為 `global`。
-
-```vue
-<!-- Child.vue -->
 <template>
   <ModalProvider name="LoginModal" global>
     <!-- Do anything just like non-global modal -->
@@ -244,64 +232,19 @@ useGlobalModalContext()
 </template>
 ```
 
-不太一樣的是，你需要透過 `useGlobalModal` 取得操作 modal 的方法。
+設定好之後，就可以在任何地方使用 `useGlobalModalContext` 開啟他
 
 ```vue
-<!-- Child2.vue -->
+<!-- Child.vue -->
 <script setup>
+import { useGlobalModalContext } from "vue-use-modal-context"
 
-import { useGlobalModal } from "vue-use-modal-context"
-
-const { openGlobalModal, patchGlobalModal, closeGlobalModal, } = useGlobalModal()
+const { openGlobalModal, patchGlobalModal, closeGlobalModal, } = useGlobalModalContext()
 
 onMounted(() => {
   openGlobalModal("LoginModal")
 })
 </script>
-```
-
-## Tutorial - Divide context and provide
-> `v0.4.0+` support
-
-在 `0.4.0` 之前，由於 `provide` / `inject` 的限制， `ModalContext` 只能在 Vue 元件之中使用。
-
-現在你可以透過分開 context 跟 provide，讓 `ModalContext` 得到更大的自由度。
-
-以下是通常 provide `globalModalContext` 的方式
-
-```ts
-// App.vue
-import { useGlobalModalContext } from "vue-use-modal-context"
-useGlobalModalContext()
-```
-
-現在這個動作可以相等於：
-
-```ts
-// App.vue
-import { createModalContext, provideModalContextGlobal } from "vue-use-modal-context"
-
-const globalModalContext = createModalContext()
-provideModalContextGlobal(globalModalContext)
-```
-
-在 globalModalContext 中你可以使用包括 `openModal` 在內所有 ModalContext 的功能。
-
-這個功能可以讓在其他非 Vue 元件內操作 modal 變得比較方便，你可以將 global modal 做成像是下面這樣：
-
-```ts
-// src/global-modal.ts
-import { createModalContext } from './modal'
-
-export const globalModal = createModalContext()
-```
-
-```ts
-// src/App.vue
-import { provideModalContextGlobal } from './modal'
-import { globalModal } from './global-modal'
-
-provideModalContextGlobal(globalModal)
 ```
 
 ## documentation
@@ -404,14 +347,10 @@ onMounted(() => {
 - `modal`: 與 `<ModalProvider>` scoped slot 中的 `modal`。
 
 
-### `useGlobalModalContext`, `useGlobalModal`
+### `useGlobalModalContext`
+`useGlobalModalContext` 可以取得 global modal context 的操作函式：
 
-`useGlobalModalContext` 與 `useModalContext` 類似，可以註冊一個全域的 context。注意，使用 globalModalContext 的子元件不能再有 globalModalContext。globalModalContext 不會被一般的 ModalContext 覆蓋。
-
-
-`useGlobalModal` 則可以取得 global modal context 的操作函式：
-
-`useGlobalModal` 將會回傳：
+`useGlobalModalContext` 將會回傳：
 
 - `openGlobalModal`: 與 `openModal` 相同，但只能開啟 global modal。
 - `closeGlobalModal`: 與 `closeModal` 相同，但只能關閉 global modal。
@@ -422,7 +361,7 @@ onMounted(() => {
 內部的 type 基本上都有曝露出來。以下說明比較常用的 type 設置
 
 #### Global components type
-當你是使用全域註冊元件時，如果你是使用 `vscode` + `volar`，你可以透過以下方式設置 global components type
+當你是使用全域註冊元件時(比如使用 plugin 時)，如果你是使用 `vscode` + `volar`，你可以透過以下方式設置 global components type
 
 ```ts
 // src/components.d.ts
@@ -434,21 +373,4 @@ declare module 'vue' {
     ModalProvider: typeof ModalProvider
   }
 }
-```
-
-#### slot type
-其中有兩個比較有可能會用的是 `ModalProviderSlot`, `ModalContextSlot`
-```vue
-<script setup lang="ts">
-import type { ModalContextSlot, ModalProviderSlot } from "vue-use-modal-context"
-
-</script>
-
-<template>
-  <ModalContext v-slot="{ openModal, closeModal, patchModal}: ModalContextSlot">
-    <ModalProvider v-slot="{ modal, closeAnd } : ModalProviderSlot">
-      <!-- do something...-->
-    </ModalProvider>
-  </ModalContext>
-</template>
 ```

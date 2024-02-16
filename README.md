@@ -13,16 +13,15 @@ Excludes the modal itself. If you're choosing a modal package, you might conside
   - [Install](#install)
   - [Tutorial](#tutorial)
   - [Tutorial - global context](#tutorial---global-context)
-  - [Tutorial - Divide context and provide](#tutorial---divide-context-and-provide)
+    - [setup global modal](#setup-global-modal)
   - [documentation](#documentation)
     - [`useModalContext` and `<ModalContext>`](#usemodalcontext-and-modalcontext)
       - [`<ModalContext>`](#modalcontext)
     - [`useModalProvider` and `<ModalProvider>`](#usemodalprovider-and-modalprovider)
     - [`useModalProvider`](#usemodalprovider)
-    - [`useGlobalModalContext`, `useGlobalModal`](#useglobalmodalcontext-useglobalmodal)
+    - [`useGlobalModalContext`](#useglobalmodalcontext)
     - [Types](#types)
       - [Global components type](#global-components-type)
-      - [slot type](#slot-type)
 
 
 
@@ -31,14 +30,14 @@ Excludes the modal itself. If you're choosing a modal package, you might conside
 npm install vue-use-modal-context
 ```
 
-You can globally register the component  `<ModalContext>`, `<ModalProvider>` using a plugin.
+You can globally register the component  `<ModalContext>`, `<ModalProvider>` using a plugin. (`component: true`)
 
 ```ts
 import { ModalContextPlugin } from "vue-use-modal-context"
 
 const app = createApp(App)
 
-app.use(ModalContextPlugin)
+app.use(ModalContextPlugin, { component: true })
 
 app.mount('#app')
 ```
@@ -222,26 +221,15 @@ import { ModalContext, ModalProvider } from "vue-use-modal-context"
 ## Tutorial - global context
 You might need a global modal context that spans across components and contexts. In such cases, you can use `useGlobalModalContext`.
 
+To use global modal, you need register plugin. Please refer to [document](#install).
+
+### setup global modal
+You can set `<ModalProvider`> anywhere. Remember to set it as `global`.
+
 It is recommended to use it in the top-level component (e.g., `App.vue`):
 
 ```vue
 <!-- App.vue -->
-<script setup>
-
-import { useGlobalModalContext } from "vue-use-modal-context"
-
-useGlobalModalContext()
-</script>
-<template>
-  <Child />
-  <Child2 />
-</template>
-```
-
-Then, you can set `<ModalProvider`> anywhere. Remember to set it as `global`.
-
-```vue
-<!-- Child.vue -->
 <template>
   <ModalProvider name="LoginModal" global>
     <!-- Do anything just like non-global modal -->
@@ -249,67 +237,20 @@ Then, you can set `<ModalProvider`> anywhere. Remember to set it as `global`.
 </template>
 ```
 
-The difference is that you need to use `useGlobalModal` to obtain the methods for manipulating the modal.
+Then, you can use `useGlobalModalContext` anywhere.
 
 ```vue
-<!-- Child2.vue -->
+<!-- Child.vue -->
 <script setup>
+import { useGlobalModalContext } from "vue-use-modal-context"
 
-import { useGlobalModal } from "vue-use-modal-context"
-
-const { openGlobalModal, patchGlobalModal, closeGlobalModal, } = useGlobalModal()
+const { openGlobalModal, patchGlobalModal, closeGlobalModal, } = useGlobalModalContext()
 
 onMounted(() => {
   openGlobalModal("LoginModal")
 })
 </script>
 ```
-
-## Tutorial - Divide context and provide
-> `v0.4.0+` support
-
-Due to the limitations of `provide` / `inject`, `ModalContext` can only be used within Vue components before `0.4.0` .
-
-Now you can enhance the flexibility of `ModalContext` by separating `context` and `provide`.
-
-Below is the typical way to provide globalModalContext:
-
-```ts
-// App.vue
-import { useGlobalModalContext } from "vue-use-modal-context"
-useGlobalModalContext()
-```
-
-Now, this can be equal to:
-
-```ts
-// App.vue
-import { createModalContext, provideModalContextGlobal } from "vue-use-modal-context"
-
-const globalModalContext = createModalContext()
-provideModalContextGlobal(globalModalContext)
-```
-
-With the `globalModalContext`, you can utilize all functionalities of `ModalContext`, including `openModal`.
-
-This feature makes it more convenient to manipulate modals in non-Vue file. You can structure the global modal to be something like the following:
-
-```ts
-// src/global-modal.ts
-import { createModalContext } from './modal'
-
-export const globalModal = createModalContext()
-```
-
-```ts
-// src/App.vue
-import { provideModalContextGlobal } from './modal'
-import { globalModal } from './global-modal'
-
-provideModalContextGlobal(globalModal)
-```
-
-
 
 ## documentation
 
@@ -412,17 +353,12 @@ Returns:
 `modal`: Same as the modal in the <ModalProvider> scoped slot.
 
 
-### `useGlobalModalContext`, `useGlobalModal`
+### `useGlobalModalContext`
+`useGlobalModalContext` works the same as `useModalContext`, but manipulate global context. it will returns:
 
-`useGlobalModalContext` is similar to `useModalContext` but can register a global context. Note that components using `globalModalContext` cannot under the another `globalModalContext`. The globalModalContext won't be overridden by a regular ModalContext.
-
-`useGlobalModal` provides the following functions to manipulate the global modal context:
-
-`useGlobalModal` returns:
-
-`openGlobalModal`: Similar to openModal, but can only open global modals.
-`closeGlobalModal`: Similar to closeModal, but can only close global modals.
-`patchGlobalModal`: Similar to patchModal, but can only patch global modals.
+- `openGlobalModal`: Similar to openModal, but can only open global modals.
+- `closeGlobalModal`: Similar to closeModal, but can only close global modals.
+- `patchGlobalModal`: Similar to patchModal, but can only patch global modals.
 
 
 
@@ -430,7 +366,7 @@ Returns:
 Most types in this package are exposed. The following explains the most commonly used type settings.
 
 #### Global components type
-When you are using globally registered components, if you are using `vscode + volar`, you can set the global components type through the following way:
+When you are using globally registered components (e.g: plugin), if you are using `vscode + volar`, you can set the global components type through the following way:
 
 ```ts
 // src/components.d.ts
@@ -442,21 +378,4 @@ declare module 'vue' {
     ModalProvider: typeof ModalProvider
   }
 }
-```
-
-#### slot type
-Two types that might be more commonly used are `ModalProviderSlot` and `ModalContextSlot`
-```vue
-<script setup lang="ts">
-import type { ModalContextSlot, ModalProviderSlot } from "vue-use-modal-context"
-
-</script>
-
-<template>
-  <ModalContext v-slot="{ openModal, closeModal, patchModal}: ModalContextSlot">
-    <ModalProvider v-slot="{ modal, closeAnd } : ModalProviderSlot">
-      <!-- do something...-->
-    </ModalProvider>
-  </ModalContext>
-</template>
 ```
