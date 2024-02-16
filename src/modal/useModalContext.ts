@@ -1,5 +1,12 @@
 import { inject, provide, reactive } from 'vue'
-import type { ModalMap, RegistModal, UnregisterModal, OpenModal, CloseModal, PatchModal } from './types'
+import type {
+  ModalMap,
+  RegistModal,
+  UnregisterModal,
+  OpenModal,
+  CloseModal,
+  PatchModal,
+} from './types'
 
 import { ContextName } from './constant'
 import { watch } from 'vue'
@@ -76,12 +83,16 @@ export const createModalContext = () => {
   }
 }
 
-export const provideModalContext = (modalContext: ReturnType<typeof createModalContext>) => {
+export const provideModalContext = (
+  modalContext: ReturnType<typeof createModalContext>
+) => {
   provide(ContextName.ModalMap, modalContext.modalMap)
   provide(ContextName.RegisterModal, modalContext.registerModal)
   provide(ContextName.UnregisterModal, modalContext.unregisterModal)
 }
-export const provideModalContextGlobal = (modalContext: ReturnType<typeof createModalContext>) => {
+export const provideModalContextGlobal = (
+  modalContext: ReturnType<typeof createModalContext>
+) => {
   if (inject(ContextName.GlobalModalMap, null)) {
     throw new Error('GlobalModalContext can not under the other GlobalModalContext.')
   }
@@ -96,7 +107,8 @@ export const provideModalContextGlobal = (modalContext: ReturnType<typeof create
 
 export const useModalContext = () => {
   const modalContext = createModalContext()
-  const { openModal, closeModal, patchModal, registerModal, unregisterModal } = modalContext
+  const { openModal, closeModal, patchModal, registerModal, unregisterModal } =
+    modalContext
 
   provideModalContext(modalContext)
 
@@ -110,16 +122,18 @@ export const useModalContext = () => {
 }
 
 export const useGlobalModalContext = () => {
-  const modalContext = createModalContext()
-  const { openModal, closeModal, patchModal, registerModal, unregisterModal } = modalContext
+  const globalModalMap = inject(ContextName.GlobalModalMap, null) as ModalMap | null
+  const openGlobalModal = inject(ContextName.OpenGlobalModal, null) as OpenModal | null
+  const patchGlobalModal = inject(ContextName.PatchGlobalModal, null) as PatchModal | null
+  const closeGlobalModal = inject(ContextName.CloseGlobalModal, null) as CloseModal | null
 
-  provideModalContextGlobal(modalContext)
+  if (!globalModalMap || !openGlobalModal || !patchGlobalModal || !closeGlobalModal) {
+    throw new Error(`useGlobalModal need be in GlobalModalContext.`)
+  }
 
   return {
-    openGlobalModal: openModal,
-    closeGlobalModal: closeModal,
-    patchGlobalModal: patchModal,
-    registerGlobalModal: registerModal,
-    unregisterGlobalModal: unregisterModal,
+    openGlobalModal,
+    patchGlobalModal,
+    closeGlobalModal,
   }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // import { h, onMounted, ref } from 'vue'
-import { useGlobalModal } from './modal'
+import { useGlobalModalContext } from './modal'
 // import Heading from './Heading.vue'
 // import { useModalTransmitter } from './modal/useModalTransmitter'
 
@@ -10,7 +10,7 @@ import { useGlobalModal } from './modal'
 //     message.value = 'Hello World'
 //   }, 2000)
 // })
-const { openGlobalModal, closeGlobalModal, patchGlobalModal } = useGlobalModal()
+const { openGlobalModal, closeGlobalModal, patchGlobalModal } = useGlobalModalContext()
 // useModalTransmitter('custom', { default: [h('div', '123'), h('span', '222')] })
 </script>
 <template>
