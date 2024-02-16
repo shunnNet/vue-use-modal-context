@@ -27,8 +27,11 @@ export const createModalContext = () => {
     }
 
     modalMap[name].unwatch = watch(
-      () => modalMap[name].show,
-      (_, oldVal) => {
+      () => modalMap[name] && modalMap[name].show,
+      (now, oldVal) => {
+        if (now === undefined) {
+          return
+        }
         if (oldVal === true) {
           if (resetAfterClose) {
             modalMap[name].data = modalMap[name].initValue
@@ -47,7 +50,7 @@ export const createModalContext = () => {
 
   const unregisterModal: UnregisterModal = (name) => {
     checkModalExistedOrThrow(name)
-    modalMap[name].close()
+    modalMap[name].unwatch()
     delete modalMap[name]
   }
   const openModal: OpenModal = (name, data) => {
