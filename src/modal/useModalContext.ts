@@ -24,6 +24,7 @@ export const createModalContext = () => {
       unwatch: () => {},
       wait: Promise.resolve(),
       _resolve: () => {},
+      _id: Date.now(),
     }
 
     modalMap[name].unwatch = watch(
@@ -40,6 +41,8 @@ export const createModalContext = () => {
         }
       }
     )
+
+    return modalMap[name]._id
   }
 
   const checkModalExistedOrThrow = (name: string) => {
@@ -48,10 +51,14 @@ export const createModalContext = () => {
     }
   }
 
-  const unregisterModal: UnregisterModal = (name) => {
+  const unregisterModal: UnregisterModal = (name, _id) => {
     checkModalExistedOrThrow(name)
-    modalMap[name].unwatch()
-    delete modalMap[name]
+    if (modalMap[name]._id === _id) {
+      // TODO: This may cause problem when call outside the component
+      // Because the previous same name provider may not be unwatched
+      modalMap[name].unwatch()
+      delete modalMap[name]
+    }
   }
   const openModal: OpenModal = (name, data) => {
     checkModalExistedOrThrow(name)

@@ -8,13 +8,14 @@ export type Modal = {
   unwatch: () => void
   wait: Promise<any>
   _resolve: (value: any) => void
+  _id: any
 }
 export type RegistModal = (
   name: string,
   initValue: Record<string, any>,
   resetAfterClose?: boolean
 ) => void
-export type UnregisterModal = (name: string) => void
+export type UnregisterModal = (name: string, _id: any) => void
 export type ModalData = Record<string, any>
 export type ModalMap = Record<string, Modal>
 export type OpenModal<T = any> = (name: keyof ModalMap, data?: ModalData) => Promise<T>

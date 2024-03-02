@@ -8,7 +8,10 @@ export const useModalProvider = (
   resetAfterClose: boolean = false,
   global: boolean = false
 ) => {
-  const modalMap = inject(global ? ContextName.GlobalModalMap : ContextName.ModalMap, null) as ModalMap | null
+  const modalMap = inject(
+    global ? ContextName.GlobalModalMap : ContextName.ModalMap,
+    null
+  ) as ModalMap | null
 
   const registerModal = inject(
     global ? ContextName.RegisterGlobalModal : ContextName.RegisterModal,
@@ -24,10 +27,10 @@ export const useModalProvider = (
     throw new Error(`ModalProvider "${name}" need be in ModalContext.`)
   }
 
-  registerModal(name, initData, resetAfterClose)
+  const _id = registerModal(name, initData, resetAfterClose)
 
   onBeforeUnmount(() => {
-    unregisterModal(name)
+    unregisterModal(name, _id)
   })
 
   return {
